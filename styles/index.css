@@ -6,9 +6,33 @@
 @tailwind components;
 /* Stop purging. */
 
+body {
+  @apply bg-gray-200;
+}
+
 /* Write your own custom component styles here */
-.btn-blue {
-  @apply bg-blue-500 text-white font-bold py-2 px-4 rounded;
+.btn-base {
+  @apply px-2 py-1 border-2 rounded focus:outline-none focus:ring-2 focus:border-transparent;
+}
+
+.btn-primary {
+  @apply border-green-400 text-green-400 hover:bg-green-800 hover:border-green-800 hover:text-white focus:ring-green-600;
+}
+
+.btn-danger {
+  @apply border-red-400 text-red-400 hover:bg-red-800 hover:border-red-800 hover:text-white focus:ring-red-600;
+}
+
+.btn-disabled {
+  @apply border-gray-400 text-gray-400 hover:bg-gray-800 hover:border-gray-800 hover:text-white focus:ring-gray-600 hover:cursor-not-allowed;
+}
+
+.form-tick:checked {
+  /** checkbox svg source: https://tailwindcss.com/docs/hover-focus-and-other-states#checked */
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M5.707 7.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L7 8.586 5.707 7.293z'/%3e%3c/svg%3e");
+  background-size: 100% 100%;
+  background-position: 50%;
+  @apply border-transparent bg-current bg-no-repeat;
 }
 
 /* Start purging... */

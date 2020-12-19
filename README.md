@@ -6,7 +6,13 @@ Next.js project.
 ## Start
 
 ```bash
+# install dependencies
 yarn
+
+# start postgres
+docker-compose -f docker/docker-compose.yml up -d
+
+# start the app
 yarn dev
 ```
 

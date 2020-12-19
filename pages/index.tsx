@@ -1,11 +1,64 @@
 import React, { FunctionComponent, useState } from 'react'
 import classnames from 'classnames'
+import { gql, useQuery, useMutation } from '@apollo/client'
+import map from 'lodash.map'
 
-import { TodoItem, useTodoContext } from '../components/todo'
+import { TodoItem, Todo, Todos } from '../components/todo'
+import { LoadingSpinner } from '../components/spinner'
+
+const TodosQuery = gql`
+  query Todos {
+    todos {
+      id
+      title
+      done
+    }
+  }
+`
+
+const AddTodoMutation = gql`
+  mutation AddTodos($title: String!) {
+    addTodo(title: $title) {
+      id
+      title
+      done
+    }
+  }
+`
+const UpdateTodo = gql`
+  mutation UpdateTodos($updatedTodo: UpdatedTodo!) {
+    updateTodo(updatedTodo: $updatedTodo) {
+      id
+      title
+      done
+    }
+  }
+`
+const DeleteTodo = gql`
+  mutation DeleteTodos($id: Int!) {
+    deleteTodo(id: $id)
+  }
+`
 
 const Page: FunctionComponent = () => {
-  const { createTodo, deleteTodo, updateTodo, todos } = useTodoContext()
   const [title, setTitle] = useState<string>('')
+
+  const { data, loading } = useQuery<{ todos: Todos }>(TodosQuery)
+  const [addTodo] = useMutation<Todo, { title: Todo['title'] }>(
+    AddTodoMutation,
+    {
+      refetchQueries: [{ query: TodosQuery }],
+    },
+  )
+  const [updateTodo] = useMutation<
+    Todo,
+    { updatedTodo: Partial<Todo> & { id: number } }
+  >(UpdateTodo, {
+    refetchQueries: [{ query: TodosQuery }],
+  })
+  const [deleteTodo] = useMutation<Todo, { id: Todo['id'] }>(DeleteTodo, {
+    refetchQueries: [{ query: TodosQuery }],
+  })
 
   return (
     <div className="py-20">
@@ -18,7 +71,7 @@ const Page: FunctionComponent = () => {
               onSubmit={e => {
                 e.preventDefault()
                 if (title) {
-                  createTodo(title)
+                  addTodo({ variables: { title } })
                   setTitle('')
                 }
               }}
@@ -41,20 +94,35 @@ const Page: FunctionComponent = () => {
               </button>
             </form>
             <div>
-              <ul>
-                {todos &&
-                  todos.map(todo => (
+              {loading ? (
+                <div className="flex justify-center my-5">
+                  <LoadingSpinner />
+                </div>
+              ) : (
+                <ul>
+                  {map(data?.todos, (todo: Todo) => (
                     <li key={todo.id}>
                       <TodoItem
                         todo={todo}
                         onToggle={() =>
-                          updateTodo({ id: todo.id, done: !todo.done })
+                          updateTodo({
+                            variables: {
+                              updatedTodo: {
+                                id: todo.id,
+                                title: todo.title,
+                                done: !todo.done,
+                              },
+                            },
+                          })
                         }
-                        onDelete={() => deleteTodo(todo.id)}
+                        onDelete={() =>
+                          deleteTodo({ variables: { id: todo.id } })
+                        }
                       />
                     </li>
                   ))}
-              </ul>
+                </ul>
+              )}
             </div>
           </div>
         </div>

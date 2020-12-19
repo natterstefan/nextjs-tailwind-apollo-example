@@ -1,16 +1,16 @@
 export type Todo = {
+  /**
+   * The Todo's id
+   */
   id: number
+  /**
+   * The Todo's title
+   */
   title: string
+  /**
+   * The Todo's current done state
+   */
   done: boolean
 }
 
-export type Todos = Record<number, Todo>
-
-export type TodoUpdate = Partial<Todo> & { id: number }
-
-export type TodoContextType = {
-  todos: Todo[]
-  createTodo: (title: Todo['title']) => void
-  updateTodo: (todoUpdate: TodoUpdate) => void
-  deleteTodo: (id: Todo['id']) => void
-}
+export type Todos = Todo[]

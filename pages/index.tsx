@@ -25,7 +25,7 @@ const AddTodoMutation = gql`
     }
   }
 `
-const UpdateTodo = gql`
+const UpdateTodoMutation = gql`
   mutation UpdateTodos($updatedTodo: UpdatedTodo!) {
     updateTodo(updatedTodo: $updatedTodo) {
       id
@@ -34,7 +34,7 @@ const UpdateTodo = gql`
     }
   }
 `
-const DeleteTodo = gql`
+const DeleteTodoMutation = gql`
   mutation DeleteTodos($id: Int!) {
     deleteTodo(id: $id)
   }
@@ -53,12 +53,15 @@ const Page: FunctionComponent = () => {
   const [updateTodo] = useMutation<
     Todo,
     { updatedTodo: Partial<Todo> & { id: number } }
-  >(UpdateTodo, {
+  >(UpdateTodoMutation, {
     refetchQueries: [{ query: TodosQuery }],
   })
-  const [deleteTodo] = useMutation<Todo, { id: Todo['id'] }>(DeleteTodo, {
-    refetchQueries: [{ query: TodosQuery }],
-  })
+  const [deleteTodo] = useMutation<Todo, { id: Todo['id'] }>(
+    DeleteTodoMutation,
+    {
+      refetchQueries: [{ query: TodosQuery }],
+    },
+  )
 
   return (
     <div className="py-20">

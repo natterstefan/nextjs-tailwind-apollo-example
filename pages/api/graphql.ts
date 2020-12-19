@@ -1,7 +1,10 @@
 import { ApolloServer, gql, IResolvers } from 'apollo-server-micro'
-import map from 'lodash.map'
 
 import { Todo } from '../../components/todo'
+import { TodoDataSource } from '../../components/todo/todo-datasource'
+import KnexConfig from '../../knexfile'
+
+require('dotenv').config()
 
 let idCounter = 0
 // example memory storage
@@ -32,10 +35,14 @@ const typeDefs = gql`
   }
 `
 
-const resolvers: IResolvers = {
+type TSource = any
+type TContext = { dataSources: { todoDataSource: TodoDataSource } }
+
+const resolvers: IResolvers<TSource, TContext> = {
   Query: {
     todo: (_, { id }) => todos[id] || null,
-    todos: () => map(todos, todo => todo),
+    todos: async (_parent, _args, { dataSources }) =>
+      dataSources.todoDataSource.getAllTodos(),
   },
 
   Mutation: {
@@ -63,7 +70,15 @@ const resolvers: IResolvers = {
   },
 }
 
-const server = new ApolloServer({ typeDefs, resolvers })
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  dataSources: () => ({
+    todoDataSource: new TodoDataSource(
+      KnexConfig[process.env.NODE_ENV || 'development'],
+    ),
+  }),
+})
 
 const handler = server.createHandler({ path: '/api/graphql' })
 

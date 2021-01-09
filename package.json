@@ -7,16 +7,21 @@
     "dev": "next",
     "build": "next build",
     "lint": "eslint --cache .",
+    "predev": "docker-compose -f docker/docker-compose.yml up -d",
     "start": "next start",
     "test": "jest"
   },
   "dependencies": {
     "@apollo/client": "^3.3.6",
+    "apollo-datasource": "^0.7.2",
     "apollo-server-micro": "^2.19.0",
     "classnames": "^2.2.6",
+    "dotenv": "^8.2.0",
     "graphql": "^15.4.0",
+    "knex": "^0.21.14",
     "lodash.map": "^4.6.0",
     "next": "^10.0.3",
+    "pg": "^8.5.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },

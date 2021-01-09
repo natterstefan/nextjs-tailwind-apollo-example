@@ -1,11 +1,10 @@
 import { ApolloServer, gql, IResolvers } from 'apollo-server-micro'
-import map from 'lodash.map'
 
-import { Todo } from '../../components/todo'
+import { TodoDataSource } from '../../components/todo/todo-datasource'
+import KnexConfig from '../../knexfile'
 
-let idCounter = 0
-// example memory storage
-const todos: Record<number, Todo> = {}
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config()
 
 const typeDefs = gql`
   type Todo {
@@ -32,38 +31,44 @@ const typeDefs = gql`
   }
 `
 
-const resolvers: IResolvers = {
+type TSource = any
+type TContext = { dataSources: { todoDataSource: TodoDataSource } }
+
+const resolvers: IResolvers<TSource, TContext> = {
   Query: {
-    todo: (_, { id }) => todos[id] || null,
-    todos: () => map(todos, todo => todo),
+    todo: async (_, { id }, { dataSources }) => {
+      const [res] = await dataSources.todoDataSource.getTodo(id)
+      return res
+    },
+    todos: async (_parent, _args, { dataSources }) =>
+      dataSources.todoDataSource.getAllTodos(),
   },
 
   Mutation: {
-    addTodo: (_, { title }) => {
-      const newId = ++idCounter
-      const newTodo: Todo = {
-        id: newId,
-        title,
-        done: false,
-      }
-
-      todos[newId] = newTodo
-
-      return newTodo
+    addTodo: async (_, { title }, { dataSources }) => {
+      const [res] = await dataSources.todoDataSource.insertTodo(title)
+      return res
     },
-    updateTodo: (_, { updatedTodo }) => {
-      todos[updatedTodo.id] = { ...todos[updatedTodo.id], ...updatedTodo }
-
-      return todos[updatedTodo.id]
+    updateTodo: async (_, { updatedTodo }, { dataSources }) => {
+      const [res] = await dataSources.todoDataSource.updateTodo(updatedTodo)
+      return res
     },
-    deleteTodo: (_, { id }) => {
-      delete todos[id]
-      return id
+    deleteTodo: async (_, { id }, { dataSources }) => {
+      const [res] = await dataSources.todoDataSource.deleteTodo(id)
+      return res.id
     },
   },
 }
 
-const server = new ApolloServer({ typeDefs, resolvers })
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  dataSources: () => ({
+    todoDataSource: new TodoDataSource(
+      KnexConfig[process.env.NODE_ENV || 'development'],
+    ),
+  }),
+})
 
 const handler = server.createHandler({ path: '/api/graphql' })
 

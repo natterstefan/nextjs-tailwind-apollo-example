@@ -1,0 +1,19 @@
+version: "3.7"
+
+volumes:
+  postgres:
+
+services:
+  postgres:
+    container_name: todo
+    image: "postgres:12"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "todo"
+      PGDATA: "/data/postgres"
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "15432:5432"
+    restart: unless-stopped

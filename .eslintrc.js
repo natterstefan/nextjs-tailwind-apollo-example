@@ -17,4 +17,13 @@ module.exports = {
      */
     '@typescript-eslint/explicit-module-boundary-types': 0,
   },
+  overrides: [
+    {
+      files: ['./cypress/**/*.spec.ts'],
+      extends: ['plugin:cypress/recommended'],
+      rules: {
+        'jest/expect-expect': 0,
+      },
+    },
+  ],
 }

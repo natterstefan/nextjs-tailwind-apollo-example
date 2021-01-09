@@ -16,6 +16,16 @@ docker-compose -f docker/docker-compose.yml up -d
 yarn dev
 ```
 
+## Test with Cypress
+
+```bash
+# start the app
+yarn dev
+
+# run the test in another terminal window
+yarn cypress open
+```
+
 ## Deploy your own
 
 Deploy the example using [Vercel](https://vercel.com):
